@@ -7,7 +7,7 @@ import org.hid4java.HidServices;
 import java.util.List;
 import java.util.stream.Collectors;
 
-class HidDevices {
+public class HidDevices {
 
     private static List<HidDevice> findDevices(int vendorId, int productId, int interfaceNumber) {
         HidServices hidServices = HidManager.getHidServices();
@@ -19,7 +19,7 @@ class HidDevices {
                 .collect(Collectors.toList());
     }
 
-    private static HidDevice findDevice(int vendorId, int productId, int interfaceNumber) {
+    static HidDevice findDevice(int vendorId, int productId, int interfaceNumber) {
         List<HidDevice> devices = findDevices(vendorId, productId, interfaceNumber);
         if (devices.size() > 1) {
             throw new IllegalArgumentException("Too many devices match the specified criteria!");
@@ -29,12 +29,7 @@ class HidDevices {
         return devices.get(0);
     }
 
-    public static void execute(HidDeviceIo action, int vendorId, int productId, int interfaceNumber) throws Exception {
-        HidDevice device = findDevice(vendorId, productId, interfaceNumber);
-        executeManaged(device, action);
-    }
-
-    private static void executeManaged(HidDevice device, HidDeviceIo action) throws Exception {
+    public static void executeManaged(HidDevice device, HidDeviceIo action) throws Exception {
         System.out.println("Executing on device " + device.getPath());
         device.open();
         try {
