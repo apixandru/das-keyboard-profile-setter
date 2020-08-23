@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class Utils {
+class Utils {
 
-    public static byte hexStringToByteArray(String hexByteString) {
+    private static byte hexStringToByteArray(String hexByteString) {
         if (hexByteString == null || !hexByteString.startsWith("0x")) {
             throw new IllegalArgumentException(hexByteString);
         }
@@ -19,7 +19,7 @@ public class Utils {
         return parsedValue;
     }
 
-    public static byte[] parseHexBytes(List<String> hexLines) {
+    private static byte[] parseHexBytes(List<String> hexLines) {
         String[] hexStrings = hexLines.stream()
                 .map(line -> line.split(" "))
                 .flatMap(Arrays::stream)
@@ -45,4 +45,5 @@ public class Utils {
         }
         return packages;
     }
+
 }
