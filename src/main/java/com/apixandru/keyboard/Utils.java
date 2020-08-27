@@ -6,15 +6,11 @@ import java.util.List;
 
 class Utils {
 
-    private static byte hexStringToByteArray(String hexByteString) {
-        if (hexByteString == null || !hexByteString.startsWith("0x")) {
-            throw new IllegalArgumentException(hexByteString);
-        }
-        String hexWithout0x = hexByteString.substring(2);
-        byte parsedValue = (byte) Integer.parseInt(hexWithout0x, 16);
+    private static byte hexStringToByteArray(String hexString) {
+        byte parsedValue = (byte) Integer.parseInt(hexString, 16);
         String backToHex = String.format("%02x", parsedValue);
-        if (!hexWithout0x.equals(backToHex)) {
-            throw new IllegalArgumentException("Failed to convert " + hexByteString);
+        if (!hexString.equals(backToHex)) {
+            throw new IllegalArgumentException("Failed to convert " + hexString);
         }
         return parsedValue;
     }

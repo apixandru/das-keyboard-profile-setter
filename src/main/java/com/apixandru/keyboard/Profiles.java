@@ -34,7 +34,6 @@ class Profiles {
 
     private static List<byte[]> readBytes(Path profile) throws IOException {
         List<String> strings = Files.readAllLines(profile);
-        strings.removeIf(next -> next.endsWith("."));
         return parseByteArrays(strings);
     }
 
