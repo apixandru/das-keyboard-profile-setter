@@ -6,35 +6,32 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Base64;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
-import static com.apixandru.keyboard.Utils.parseByteArrays;
+import static java.nio.file.Files.readString;
+import static java.util.stream.Collectors.toList;
 
 class Profiles {
 
-    static Map<String, List<byte[]>> readProfiles() throws URISyntaxException, IOException {
-        Map<String, List<byte[]>> codes = new LinkedHashMap<>();
-
+    static Map<String, byte[]> readProfiles() throws URISyntaxException, IOException {
         URI uri = Profiles.class
                 .getResource("/profiles")
                 .toURI();
 
-        List<Path> collect = Files.list(Paths.get(uri))
-                .collect(Collectors.toList());
+        List<Path> profiles = Files.list(Paths.get(uri))
+                .collect(toList());
 
-        for (Path profile : collect) {
-            List<byte[]> strings = readBytes(profile);
-            codes.put(profile.getFileName().toString(), strings);
+        Map<String, byte[]> bytesForProfiles = new LinkedHashMap<>();
+        Base64.Decoder decoder = Base64.getDecoder();
+        for (Path profile : profiles) {
+            String base64Encoded = readString(profile);
+            byte[] strings = decoder.decode(base64Encoded);
+            bytesForProfiles.put(profile.getFileName().toString(), strings);
         }
-        return codes;
-    }
-
-    private static List<byte[]> readBytes(Path profile) throws IOException {
-        List<String> strings = Files.readAllLines(profile);
-        return parseByteArrays(strings);
+        return bytesForProfiles;
     }
 
 }
