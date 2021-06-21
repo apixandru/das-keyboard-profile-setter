@@ -1,32 +1,52 @@
 package com.apixandru.keyboard;
 
-import java.util.Map;
-import java.util.function.Consumer;
+import com.apixandru.keyboard.usb.DeviceLookupUsb;
 
-import static com.apixandru.keyboard.DasKeyboard.X50Q.findX50Q;
-import static com.apixandru.keyboard.HidDevices.executeManaged;
+import java.util.Map;
+
 import static com.apixandru.keyboard.IoUtils.readYesOrNo;
 import static java.util.Arrays.copyOfRange;
 
 public class Main {
 
     public static void main(String[] args) throws Exception {
-        executeManaged(findX50Q(), Main::doApplyProfiles);
+//        HID doesn't work on linux, the interface is all funny so it gets rejected
+//        usbhid 5-1.3:1.2: couldn't find an input interrupt endpoint
+//        DeviceLookup lookup = new DeviceLookupHid();
+
+//        direct usb works great!
+        DeviceLookup lookup = new DeviceLookupUsb();
+        ActualDevice device = lookup.findDevice(DasKeyboard.VENDOR_ID, DasKeyboard.X50Q.PRODUCT_ID);
+        applyProfiles(device);
     }
 
-    private static void doApplyProfiles(Consumer<byte[]> device) throws Exception {
+    public static void doApplyProfiles(ActualDevice device) throws Exception {
         Map<String, byte[]> profiles = Profiles.readProfiles();
         for (Map.Entry<String, byte[]> profile : profiles.entrySet()) {
             if (!readYesOrNo("Continue with " + profile.getKey() + " ? ")) {
                 return;
             }
-            byte[] value = profile.getValue();
-            for (int i = 0; i < 25; i++) {
-                int startSequence = i * 64;
-                int endSequence = startSequence + 64;
-                device.accept(copyOfRange(value, startSequence, endSequence));
-                Thread.sleep(50);
-            }
+            applyProfile(device, profile.getValue());
+        }
+    }
+
+    public static void applyProfiles(ActualDevice device) throws Exception {
+        System.out.println("Executing on device " + device.getDescriptor());
+        device.open();
+        try {
+            doApplyProfiles(device);
+        } finally {
+            device.close();
+        }
+    }
+
+    public static void applyProfile(ActualDevice device, byte[] profile) throws InterruptedException {
+        for (int i = 0; i < 25; i++) {
+            int startSequence = i * 64;
+            int endSequence = startSequence + 64;
+            byte[] bytes = copyOfRange(profile, startSequence, endSequence);
+            device.write(bytes);
+            Thread.sleep(50);
         }
     }
 

@@ -6,12 +6,8 @@ import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Base64;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
-import static java.nio.file.Files.readString;
 import static java.util.stream.Collectors.toList;
 
 class Profiles {
@@ -24,7 +20,7 @@ class Profiles {
         List<Path> profiles = Files.list(Paths.get(uri))
                 .collect(toList());
 
-        Map<String, byte[]> bytesForProfiles = new LinkedHashMap<>();
+        Map<String, byte[]> bytesForProfiles = new TreeMap<>();
         Base64.Decoder decoder = Base64.getDecoder();
         for (Path profile : profiles) {
             String base64Encoded = readString(profile);
@@ -32,6 +28,10 @@ class Profiles {
             bytesForProfiles.put(profile.getFileName().toString(), strings);
         }
         return bytesForProfiles;
+    }
+
+    private static String readString(Path profile) throws IOException {
+        return new String(Files.readAllBytes(profile));
     }
 
 }
