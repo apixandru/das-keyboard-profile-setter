@@ -4,9 +4,6 @@ import com.apixandru.keyboard.ActualDevice;
 import com.apixandru.keyboard.DasKeyboard;
 import com.apixandru.keyboard.DeviceLookup;
 import org.hid4java.HidManager;
-import org.hid4java.HidServices;
-import org.hid4java.jna.HidApi;
-import org.hid4java.jna.HidDeviceInfoStructure;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -14,16 +11,8 @@ import java.util.stream.Collectors;
 public class DeviceLookupHid implements DeviceLookup {
 
     private static List<ActualDevice> findDevices(int vendorId, int productId, int interfaceNumber) {
-        HidServices hidServices = HidManager.getHidServices();
-
-        HidDeviceInfoStructure hidDeviceInfoStructure = HidApi.enumerateDevices(vendorId, productId);
-        System.out.println(hidDeviceInfoStructure);
-        hidServices.getAttachedHidDevices()
-                .stream()
-                .filter(device -> vendorId == device.getVendorId())
-                .forEach(System.out::println);
-
-        return hidServices.getAttachedHidDevices()
+        return HidManager.getHidServices()
+                .getAttachedHidDevices()
                 .stream()
                 .filter(device -> vendorId == device.getVendorId())
                 .filter(device -> productId == device.getProductId())
